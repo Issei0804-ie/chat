@@ -30,8 +30,8 @@ func initLog() *os.File {
 		panic("cannot open test.log:" + err.Error())
 	}
 
-	// io.MultiWriteで、
-	// 標準出力とファイルの両方を束ねて、
+	//io.MultiWriteで、
+	//標準出力とファイルの両方を束ねて、
 	// logの出力先に設定する
 	log.SetOutput(io.MultiWriter(logfile, os.Stdout))
 
