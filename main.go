@@ -9,7 +9,6 @@ import (
 )
 
 // WebSocket 更新用
-
 func main() {
 	logfile := initLog()
 	logfile.Close()

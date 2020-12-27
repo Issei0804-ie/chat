@@ -8,33 +8,38 @@ import (
 )
 
 const (
+	// MaxConnection is max connection.
 	MaxConnection = 100
 )
 
+// Room has parameter of chat room.
 type Room struct {
-	counter int                     //クライアントのコネクションを数える
-	mCH     chan domain.ReadMessage //メッセージを送受信するためのチャンネル
+	counter  int                     //クライアントのコネクションを数える
+	mCH      chan domain.ReadMessage //メッセージを送受信するためのチャンネル
 	clientCH chan client.Client
-	status  bool
+	status   bool
 }
 
+// NewRoom makes Room struct.
 func NewRoom() Room {
 	mCH := make(chan domain.ReadMessage, 10)
 	clientCH := make(chan client.Client, 10)
-	r := Room{counter: 0, mCH: mCH, clientCH:clientCH, status: true}
+	r := Room{counter: 0, mCH: mCH, clientCH: clientCH, status: true}
 	go r.Write()
 	return r
 }
 
+// GetStatus gets status of room.
 func (r *Room) GetStatus() bool {
 	return r.status
 }
 
+// Writes sends messages to other clients.
 func (r *Room) Write() {
 	var clients []client.Client
 	//誰かがReadするまで待機
 	for {
-		select{
+		select {
 		case m := <-r.mCH:
 			fmt.Println("Write")
 
@@ -46,7 +51,7 @@ func (r *Room) Write() {
 				}
 			}
 
-		case c := <- r.clientCH:
+		case c := <-r.clientCH:
 			clients = append(clients, c)
 
 		default:
@@ -54,7 +59,7 @@ func (r *Room) Write() {
 	}
 }
 
-//各クライアントのReadに並列処理を実行させる
+// 各クライアントのReadに並列処理を実行させる
 func (r *Room) Read(conn *websocket.Conn) {
 	stopCH := make(chan bool)
 	client := client.NewClient(conn)
@@ -63,7 +68,7 @@ func (r *Room) Read(conn *websocket.Conn) {
 	go client.Read(r.mCH, stopCH)
 	r.counter++
 	r.clientCH <- client
-	
+
 	for {
 		select {
 		case <-stopCH:
@@ -72,6 +77,5 @@ func (r *Room) Read(conn *websocket.Conn) {
 		default:
 		}
 	}
-
 
 }
