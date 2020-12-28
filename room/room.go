@@ -2,9 +2,11 @@ package room
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
 	"goroutine/client"
 	"goroutine/domain"
+	"log"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -44,17 +46,17 @@ func (r *Room) Write() {
 			fmt.Println("Write")
 
 			for i := 0; i < len(clients); i++ {
-				if clients[i].GetStatus() == true {
+				if clients[i].GetStatus() {
 					fmt.Println("WriteNow")
 					if err := clients[i].GetConn().WriteJSON(&m); err != nil {
+						// error
+						log.Fatal("error: room.go Write")
 					}
 				}
 			}
 
 		case c := <-r.clientCH:
 			clients = append(clients, c)
-
-		default:
 		}
 	}
 }
@@ -70,12 +72,9 @@ func (r *Room) Read(conn *websocket.Conn) {
 	r.clientCH <- client
 
 	for {
-		select {
-		case <-stopCH:
+		for range stopCH {
 			fmt.Println("FinishREAD")
 			return
-		default:
 		}
 	}
-
 }

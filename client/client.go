@@ -2,8 +2,9 @@ package client
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
 	"goroutine/domain"
+
+	"github.com/gorilla/websocket"
 )
 
 type Client struct {

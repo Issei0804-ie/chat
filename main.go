@@ -1,17 +1,18 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"goroutine/handl"
 	"io"
 	"log"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 // WebSocket 更新用
 func main() {
 	logfile := initLog()
-	logfile.Close()
+	defer logfile.Close()
 
 	h := handl.NewHandler()
 
@@ -21,7 +22,7 @@ func main() {
 	router.GET("/room/:roomid/message", h.Connect)
 	router.GET("/user", h.GetUserID)
 
-	router.Run(":80")
+	_ = router.Run(":80")
 }
 
 func initLog() *os.File {

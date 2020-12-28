@@ -2,13 +2,14 @@ package handl
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"goroutine/domain"
 	"goroutine/room"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 const MAXROOMS = 100
@@ -34,7 +35,7 @@ func (h *handler) Connect(c *gin.Context) {
 	param := c.Param("roomid")
 	roomID, err := strconv.Atoi(param)
 	if err != nil {
-		c.JSON(200, domain.ReadMessage{0, "Error:roomid", ""})
+		c.JSON(200, domain.ReadMessage{Message: "Error:roomid"})
 	}
 
 	var upgrader = websocket.Upgrader{HandshakeTimeout: time.Second * 100, EnableCompression: true}
@@ -43,9 +44,9 @@ func (h *handler) Connect(c *gin.Context) {
 		log.Fatal("error upgrading GET request to a websocket::", err)
 	}
 	defer conn.Close()
-	//新規ルームの作成
 
-	if h.rooms[roomID].GetStatus() != true {
+	//新規ルームの作成
+	if !h.rooms[roomID].GetStatus() {
 		h.rooms[roomID] = room.NewRoom()
 	}
 	h.rooms[roomID].Read(conn)
@@ -53,7 +54,7 @@ func (h *handler) Connect(c *gin.Context) {
 
 func (h *handler) GetUserID(c *gin.Context) {
 	fmt.Println("UserID")
-	u := domain.User{h.userid}
+	u := domain.User{UserID: h.userid}
 	h.userid++
 	c.JSON(200, u)
 }
