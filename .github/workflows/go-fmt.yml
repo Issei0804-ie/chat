@@ -3,17 +3,17 @@ on:
     branches: [master]
 
 jobs:
-  gofmt:
+  gofmt&lint:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
+    steps: 
+    - name: checkout
+    - uses: actions/checkout@v2
+
     - name: gofmt
       run: if [ $(gofmt -l -s . | wc -l) -ne 0 ]; then echo "fmt failed"; exit 1; fi
-  golint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
+
     - name: golint
       uses: golangci/golangci-lint-action@v2
       with:
         version: v1.29
+        only-new-issue: true
